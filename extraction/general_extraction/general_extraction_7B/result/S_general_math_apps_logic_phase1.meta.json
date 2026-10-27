@@ -1,0 +1,63 @@
+{
+  "name": "S_general_math_apps_logic_7b_phase1",
+  "created": "2026-08-18T04:23:03Z",
+  "phase": 1,
+  "balance": false,
+  "budget": null,
+  "seed": null,
+  "layer": 20,
+  "sign_convention": "vector = mean(check \u222a switch) \u2212 mean(other); apply by ADDING coef * vector with coef = -1.0",
+  "apply_coef": -1.0,
+  "domains": {
+    "math": {
+      "paths": [
+        "data/MATH/hidden_correct_0_500/hidden.pt",
+        "data/MATH/hidden_incorrect_0_500/hidden.pt"
+      ],
+      "counts": {
+        "check": 31154,
+        "switch": 4843,
+        "other": 117731,
+        "total": 153728,
+        "check_switch": 35997
+      }
+    },
+    "apps": {
+      "paths": [
+        "data/APPS/hidden_correct_0_500/hidden.pt",
+        "data/APPS/hidden_incorrect_0_500/hidden.pt"
+      ],
+      "counts": {
+        "check": 64174,
+        "switch": 5059,
+        "other": 196744,
+        "total": 265977,
+        "check_switch": 69233
+      }
+    },
+    "logic": {
+      "paths": [
+        "data/LogiQA/hidden_correct_0_500/hidden.pt",
+        "data/LogiQA/hidden_incorrect_0_500/hidden.pt"
+      ],
+      "counts": {
+        "check": 24259,
+        "switch": 4422,
+        "other": 29069,
+        "total": 57750,
+        "check_switch": 28681
+      }
+    }
+  },
+  "pooled_counts": {
+    "check": 119587,
+    "switch": 14324,
+    "other": 343544,
+    "total": 477455,
+    "check_switch": 133911
+  },
+  "vector_dim": 3584,
+  "vector_norm": 81.92291259765625,
+  "comparisons": {},
+  "out": "results/general/S_general_math_apps_logic_7b_phase1.pt"
+}

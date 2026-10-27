@@ -1,0 +1,97 @@
+{
+  "name": "logiqa2_v_logic",
+  "created": "2026-08-25",
+  "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+  "dataset": "LogiQA 2.0 train, English rows (extraction/logic_extraction/logic_pool/LogiQA2/train.jsonl), first 2000",
+  "split": "train",
+  "layer": 20,
+  "extraction_dtype": "float32",
+  "sign_convention": "vector = mean(H_reflection \u222a H_transition) \u2212 mean(H_execution); apply by ADDING coef * vector with coef = -1.0 (SEAL code convention)",
+  "apply_coef": -1.0,
+  "boundary_token": "any vocab token containing '\u010a\u010a' (\\n\\n), inside <think> only",
+  "keyword_lists": {
+    "set": "logic",
+    "reflection": [
+      "hmm",
+      "wait",
+      "not sure",
+      "let me re-examine",
+      "making a mistake",
+      "made a mistake",
+      "think again"
+    ],
+    "reflection_prefix": [],
+    "transition": [
+      "think differently",
+      "another way",
+      "another approach",
+      "another method",
+      "another solution",
+      "another strategy",
+      "another technique"
+    ],
+    "transition_prefix": [
+      "Alternatively"
+    ],
+    "priority": "reflection checked before transition"
+  },
+  "selection_rule": "500 correct + 500 incorrect, first-in first-fill in file order (--start 0 --sample 500). NO trace is excluded: a generation that never closed </think> stated no answer, so it is a FAILED attempt, filed as INCORRECT and kept -- same rule as v_math / v_code / v_logic.",
+  "generation": {
+    "engine": "vLLM",
+    "max_tokens": 10000,
+    "temperature": 0,
+    "n": 1,
+    "use_chat_format": true,
+    "remove_bos": true,
+    "attempted": 1250,
+    "correct": 650,
+    "incorrect": 600,
+    "accuracy_all_attempts": 0.52,
+    "unfinished_kept_as_incorrect": 183,
+    "finished": 1067,
+    "accuracy_among_finished": 0.6092,
+    "answered": 1065,
+    "answer_rate": 0.852
+  },
+  "pools": {
+    "correct": {
+      "traces": 500,
+      "check": 2682,
+      "switch": 381,
+      "other": 6664,
+      "boundaries": 9727
+    },
+    "incorrect": {
+      "traces": 500,
+      "check": 20683,
+      "switch": 2839,
+      "other": 22008,
+      "boundaries": 45530
+    }
+  },
+  "activations": {
+    "check": 23365,
+    "switch": 3220,
+    "other": 28672
+  },
+  "vector_dim": [
+    3584
+  ],
+  "vector_norm": 89.17878723144531,
+  "source_vector": "extraction/logic_extraction/logic_extraction_7B/result/baseline_10000_regraded/vector_logic_500_500/layer_20_transition_reflection_steervec.pt",
+  "build_dir": "extraction/logic_extraction/logic_extraction_7B/result/baseline_10000_regraded",
+  "note": "Built by scripts/extract_vector.sh (DOMAIN=logic MODEL_SIZE=7B TAG=baseline_10000_regraded).",
+  "supersedes": {
+    "reason": "previous 7B build used tag baseline_10000, whose grading labelled 73 traces correct without a closing </think> (fabricated answers); it fails the extract_vector.sh label guard",
+    "superseded_source": "extraction/logic_extraction/logic_extraction_7B/result/baseline_10000/vector_500_500/layer_20_transition_reflection_steervec.pt",
+    "superseded_norm": 93.85563659667969,
+    "cos_with_superseded": 0.9980462193489075,
+    "regrade_effect": {
+      "correct_before": 724,
+      "correct_after": 650,
+      "flipped_true_to_false": 74,
+      "flipped_false_to_true": 0
+    },
+    "superseded_source_status": "DELETED 2026-08-25 -- the baseline_10000 tag was removed as redundant (traces byte-identical to baseline_10000_regraded, grading wrong). Path recorded for history only; it no longer exists in the tree. Recoverable from git history at or before commit 75ae613."
+  }
+}

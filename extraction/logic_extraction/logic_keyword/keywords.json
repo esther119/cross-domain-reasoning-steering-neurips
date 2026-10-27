@@ -1,0 +1,24 @@
+{
+  "check_words": [
+    "hmm",
+    "wait",
+    "not sure",
+    "let me re-examine",
+    "making a mistake",
+    "made a mistake",
+    "think again"
+  ],
+  "check_prefix": [],
+  "switch_words": [
+    "think differently",
+    "another way",
+    "another approach",
+    "another method",
+    "another solution",
+    "another strategy",
+    "another technique"
+  ],
+  "switch_prefix": [
+    "Alternatively"
+  ]
+}

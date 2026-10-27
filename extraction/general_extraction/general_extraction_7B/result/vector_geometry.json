@@ -1,0 +1,160 @@
+{
+  "layer": 20,
+  "vectors": {
+    "math": {
+      "dim": 3584,
+      "norm": 82.4412
+    },
+    "code": {
+      "dim": 3584,
+      "norm": 78.8154
+    },
+    "logic": {
+      "dim": 3584,
+      "norm": 93.8556
+    }
+  },
+  "cosine_matrix": {
+    "math": {
+      "math": 0.999999463558197,
+      "code": 0.8739407062530518,
+      "logic": 0.7480775713920593
+    },
+    "code": {
+      "math": 0.8739407062530518,
+      "code": 0.999999463558197,
+      "logic": 0.7312573194503784
+    },
+    "logic": {
+      "math": 0.7480775713920593,
+      "code": 0.7312573194503784,
+      "logic": 1.000000238418579
+    }
+  },
+  "sign_convention_consistent": true,
+  "span": {
+    "singular_values": [
+      1.6033,
+      0.5512,
+      0.3542
+    ],
+    "top_direction_share": 0.8569
+  },
+  "span_raw_norm": {
+    "singular_values": [
+      136.3827,
+      48.9957,
+      28.5739
+    ],
+    "top_direction_share": 0.8525
+  },
+  "span_random_null": {
+    "n_vectors": 3,
+    "dim": 3584,
+    "n_draws": 2000,
+    "seed": 0,
+    "mean": 0.3449,
+    "sd": 0.004,
+    "min": 0.3354,
+    "max": 0.3604
+  },
+  "combo_variants": {
+    "raw_sum_norm": 235.7321,
+    "unit_sum_norm": 2.7761,
+    "cosine_raw_vs_unit": 0.999669,
+    "cosine_domain_vs_equal_weight_combo": {
+      "math": 0.9445,
+      "code": 0.9384,
+      "logic": 0.8931
+    }
+  },
+  "weight_sensitivity": {
+    "grid": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "points": [
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 0.5,
+          "logic": 0.5
+        },
+        "cosine_with_equal": 0.9961
+      },
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 0.5,
+          "logic": 1.0
+        },
+        "cosine_with_equal": 0.9972
+      },
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 0.5,
+          "logic": 2.0
+        },
+        "cosine_with_equal": 0.9838
+      },
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 1.0,
+          "logic": 0.5
+        },
+        "cosine_with_equal": 0.9954
+      },
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 1.0,
+          "logic": 1.0
+        },
+        "cosine_with_equal": 1.0
+      },
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 1.0,
+          "logic": 2.0
+        },
+        "cosine_with_equal": 0.9926
+      },
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 2.0,
+          "logic": 0.5
+        },
+        "cosine_with_equal": 0.9873
+      },
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 2.0,
+          "logic": 1.0
+        },
+        "cosine_with_equal": 0.9957
+      },
+      {
+        "weights": {
+          "math": 1.0,
+          "code": 2.0,
+          "logic": 2.0
+        },
+        "cosine_with_equal": 0.9975
+      }
+    ],
+    "worst_case": {
+      "weights": {
+        "math": 1.0,
+        "code": 0.5,
+        "logic": 2.0
+      },
+      "cosine_with_equal": 0.9838
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "check_words": [
+    "verify",
+    "make sure",
+    "hold on",
+    "think again",
+    "'s correct",
+    "'s incorrect",
+    "Let me check",
+    "seems right"
+  ],
+  "check_prefix": [
+    "Wait"
+  ],
+  "switch_words": [
+    "think differently",
+    "another way",
+    "another approach",
+    "another method",
+    "another solution",
+    "another strategy",
+    "another technique"
+  ],
+  "switch_prefix": [
+    "Alternatively"
+  ]
+}

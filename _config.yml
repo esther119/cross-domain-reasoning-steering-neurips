@@ -1,0 +1,39 @@
+# Jekyll config for the project's GitHub Pages site.
+#
+# Pages serves this repo from the root of `main`, so by default it tries to
+# publish the whole thing -- currently well over 1 GB, almost all of it eval
+# outputs under eval/ and extraction traces/vectors under extraction/. That is what broke the
+# build: from the #45 merge onward, `pages-build-deployment` spent ~15 minutes
+# walking those trees and was cancelled, so the live site froze at the last
+# good commit and any doc added after it 404s.
+#
+# Only docs/ needs to be served. Everything heavy or irrelevant is excluded
+# below, which drops the build to the handful of files it actually needs.
+#
+# Why not the two obvious alternatives:
+#   * A .nojekyll file skips Jekyll but still publishes the entire repo, so the
+#     size problem stays -- and it would make this config be ignored.
+#   * Switching the Pages source to the /docs folder also works, but it moves
+#     the site root to docs/, changing every published URL from
+#     /SEAL/docs/<page>.html to /SEAL/<page>.html and breaking links already
+#     shared with the team.
+#
+# Keep this list in sync when new top-level directories land.
+
+exclude:
+  # Large artifacts: extraction traces / vectors and eval outputs live under these trees.
+  - extraction/
+  - eval/
+  - external/
+  # Orchestration scripts and environment files -- not part of the site.
+  - scripts/
+  - "*.py"
+  - "*.ipynb"
+  - "*.sh"
+  - requirements.txt
+
+# The docs are hand-written, self-contained HTML. Nothing should be wrapped in
+# a Jekyll layout or have its Liquid-looking braces interpreted -- several pages
+# embed LaTeX and raw model output.
+plugins: []
+markdown: kramdown

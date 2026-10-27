@@ -1,0 +1,13 @@
+**/__pycache__/
+.env
+.ipynb_checkpoints/
+external/
+
+# Results are the record and are tracked by default: eval arms (eval/*_eval/*_eval_<size>/<arm>_on_<BENCH>/,
+# predictions.jsonl = the inference traces) and extraction results (extraction/*_extraction/*_extraction_<size>/result/,
+# traces + hidden_*/prompts.json + vectors). Only the multi-GB activation dumps are ignored: hidden.pt lives on the HF Hub
+# (see the README.md next to each hidden_*_0_N/). `git add -f` one deliberately only if a small, durable copy is wanted.
+**/hidden_*_0_*/hidden.pt
+
+# Finder metadata
+.DS_Store
