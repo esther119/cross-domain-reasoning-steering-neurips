@@ -469,8 +469,7 @@ if __name__ == "__main__":
     if args.logiqa_eval_selection and not args.logiqa_english_only:
         # The pinned selection files (eval_rand42_500*.json) index load_logiqa(english_only=True)
         # order. Applied to the unfiltered pool they pick different rows -- half of them Chinese.
-        # That is exactly how the archived 7B legacy-500 runs went wrong
-        # (deleted from the repo on 2026-08-23 (in git history)), so refuse instead of scoring garbage.
+        # That is exactly how the archived 7B legacy-500 runs went wrong, so refuse instead of scoring garbage.
         parser.error("--logiqa_eval_selection requires --logiqa_english_only: the selection files "
                      "index the English-only pool (eval/logic_eval/logic_eval_task/LogiQA2/test.jsonl order)")
     if args.logiqa_eval_selection and (args.max_examples is not None or args.start is not None):

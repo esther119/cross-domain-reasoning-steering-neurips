@@ -3,8 +3,8 @@
 `test_rand42_500.jsonl` — the 500 APPS test problems every `*_on_APPS` arm is scored on. Derivation (what the harness did on every
 run before this file existed): `load_apps(split="test", max_examples=500, random_sample=True, sample_seed=42)` over the usable rows
 (rows with parsable tests) of the `codeparrot/apps` parquet branch (`all/test/0000.parquet`, `0001.parquet`), `random.Random(42).sample`,
-sorted by `problem_id`. 314 interview / 95 introductory / 91 competition. Materialised on 2026-08-23 and checked against the
-`predictions.jsonl` of every APPS arm at both sizes (baseline, v_code, v_nonreason, R_iso_seed1, … at 1.5B and 7B): same 500 ids, same
+sorted by `problem_id`. 314 interview / 95 introductory / 91 competition. Checked against the
+`predictions.jsonl` of every APPS arm at both sizes (baseline, v_code, R_iso_seed1, … at 1.5B and 7B): same 500 ids, same
 order. Fields: `problem_id`, `difficulty`, `question`, `starter_code`, `url` (1 MB).
 
 `test_rand42_500.with_tests.jsonl.gz` — the same 500 rows with `input_output` (the hidden tests: 107 MB raw, 34 MB gzipped; the

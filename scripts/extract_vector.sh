@@ -5,14 +5,13 @@
 #   DOMAIN=math      MODEL_SIZE=1.5B bash scripts/extract_vector.sh 0      # S_math  1.5B
 #   DOMAIN=code      MODEL_SIZE=7B   bash scripts/extract_vector.sh 0      # S_code  7B
 #   DOMAIN=logic     MODEL_SIZE=1.5B bash scripts/extract_vector.sh 0      # S_logic 1.5B
-#   DOMAIN=nonreason MODEL_SIZE=7B   bash scripts/extract_vector.sh 0      # v_nonreason 7B (TriviaQA)
 #   DOMAIN=logic MODEL_SIZE=7B TAG=baseline_10000_regraded SKIP_GEN=1 bash scripts/extract_vector.sh 0
 #                                                                           # rebuild from an existing (regraded) pool
 #
 # Steps  1) generate + grade traces on the domain's extraction pool (vLLM, greedy, chat template, BOS
 #           stripped, MAX_TOKENS cap)            -> RESULT/<TAG>/{data.jsonl, math_eval.jsonl, ...}
 #        2) label guard: both classes hold >= SAMPLE traces; no trace graded correct without a closing
-#           </think> (fails for logic/nonreason where the label can only come after </think>; warns for
+#           </think> (fails for logic where the label can only come after </think>; warns for
 #           math/code whose graders can legitimately find an answer inside the trace)
 #        3) layer-20 boundary activations for the first SAMPLE correct and first SAMPLE incorrect traces
 #           (file order, nothing excluded; unfinished traces are incorrect and kept)
@@ -21,22 +20,21 @@
 #           layer_20_transition_reflection_steervec.pt, packaged with a .meta.json as RESULT/<PKG>.pt
 #
 # Placeholders (env):
-#   DOMAIN      math | code | logic | nonreason                       (required)
+#   DOMAIN      math | code | logic                                   (required)
 #   MODEL_SIZE  1.5B | 7B  -> MODEL=deepseek-ai/DeepSeek-R1-Distill-Qwen-<size>   (or set MODEL directly)
 #   MAX_TOKENS  generation cap, default 10000 (the universal cap; do not lower it for extraction)
-#   ATTEMPT     rows of the pool to generate on: math 3000, code (stop at SAMPLE+SAMPLE), logic 2000,
-#               nonreason 10000 (TriviaQA 1.5B needs the whole pool at ~8% accuracy)
+#   ATTEMPT     rows of the pool to generate on: math 3000, code (stop at SAMPLE+SAMPLE), logic 2000
 #   SAMPLE      traces per class, default 500
 #   KEYWORDS    check/switch set, default = DOMAIN (extraction/<DOMAIN>_extraction/<DOMAIN>_keyword/keywords.json)
 #   TAG         result sub-folder, default baseline_<MAX_TOKENS>;  SKIP_GEN=1 reuses RESULT/<TAG> traces
-#   PKG         packaged vector name, default math_v_math | apps_v_code | logiqa2_v_logic | triviaqa_v_nonreason
+#   PKG         packaged vector name, default math_v_math | apps_v_code | logiqa2_v_logic
 #   LAYER       steering layer, default 20;  GPU index is the first positional arg (default 0)
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 [[ -f .env ]] && { set -a; source .env; set +a; }
 
 gpu=${1:-0}
-: "${DOMAIN:?set DOMAIN=math|code|logic|nonreason}"
+: "${DOMAIN:?set DOMAIN=math|code|logic}"
 : "${MODEL_SIZE:=1.5B}"
 : "${MODEL:=deepseek-ai/DeepSeek-R1-Distill-Qwen-${MODEL_SIZE}}"
 : "${MAX_TOKENS:=10000}"
@@ -73,15 +71,7 @@ case "$DOMAIN" in
     GEN=(python -u $SRC/gen_logiqa_vllm.py --model_name_or_path "$MODEL" --save_dir "$DIR" --split train --filter_cjk
          --max_examples "$ATTEMPT" --max_tokens "$MAX_TOKENS" --use_chat_format --remove_bos)
     STRICT=1 ;;
-  nonreason)
-    : "${ATTEMPT:=10000}"; : "${PKG:=triviaqa_v_nonreason}"; : "${EM_MODE:=contains}"
-    DATA_PATH=extraction/nonreason_extraction/nonreason_pool/TriviaQA/train.jsonl
-    POOL_DESC="TriviaQA closed-book train (extraction/nonreason_extraction/nonreason_pool/TriviaQA/train.jsonl, seed-42 shuffle), first ${ATTEMPT}; EM_MODE=${EM_MODE} labels"
-    GEN=(python -u eval/nonreason_eval/pipeline/eval_nonreason_vllm.py --model_name_or_path "$MODEL" --save_dir "$DIR"
-         --dataset TriviaQA_train --max_examples "$ATTEMPT" --max_tokens "$MAX_TOKENS" --em_mode "$EM_MODE"
-         --tensor_parallel_size "$TP" --use_chat_format --remove_bos)
-    STRICT=1 ;;
-  *) echo "DOMAIN must be math|code|logic|nonreason (got '$DOMAIN')" >&2; exit 2 ;;
+  *) echo "DOMAIN must be math|code|logic (got '$DOMAIN')" >&2; exit 2 ;;
 esac
 
 echo "=================================================================="

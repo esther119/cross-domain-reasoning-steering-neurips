@@ -12,22 +12,21 @@
 #
 # Results (flat, one folder per arm):  eval/<domain>_eval/<domain>_eval_<MODEL_SIZE>/<ARM>_on_<BENCH>/
 #   math -> MATH500 (all 500)   code -> APPS (test, seeded 500)   logic -> LogiQA2 (clean 500, English-only)
-#   nonreason -> TriviaQA (validation, seeded 500)
 # Each folder holds predictions.jsonl, math_eval.jsonl / code_eval.jsonl, metrics.json, example_prompt.txt and
 # run_config.json (the fingerprint: resuming into a folder written under different settings is refused).
 #
 # Placeholders (env):
 #   VECTOR       path to the .pt (required; "baseline" evaluates only the unsteered model)
-#   ARM          result name: v_math | v_code | v_logic | v_nonreason | v_general | v_combo | R_iso_seedN | ...
-#   MODEL_SIZE   1.5B | 7B  (-> MODEL; pins the batch sizes: 1.5B 25/1/25/25, 7B 16/2/8/16 for MATH500/APPS/LogiQA2/TriviaQA)
-#   DATASETS     comma list of math,apps,logiqa,triviaqa (default all four; livecodebench accepted, retired)
+#   ARM          result name: v_math | v_code | v_logic | v_general | v_combo | R_iso_seedN | ...
+#   MODEL_SIZE   1.5B | 7B  (-> MODEL; pins the batch sizes: 1.5B 25/1/25, 7B 16/2/8 for MATH500/APPS/LogiQA2)
+#   DATASETS     comma list of math,apps,logiqa (default all three; livecodebench accepted, retired)
 #   GPUS         comma list of GPU indices (default: the first positional arg, else 0). More than one GPU = data-parallel
 #                shards, one process per GPU, every batch checkpointed; a killed shard costs one batch and a re-run
 #                resumes. Batch boundaries are the same as a single-GPU run, so numerics are unchanged.
 #   RUN_BASELINE 1 also runs baseline_on_<BENCH> (default 0 when VECTOR is a file, 1 when VECTOR=baseline)
 #   MAX_ATTEMPTS 3 (retries of a failed shard set)   MAX_TOKENS 10000 (universal)   LAYER 20   COEF -1.0   SAMPLE_SEED 42
 #   GEN_MODE hf|pruned  MODEL_DTYPE fp32|bf16  (the standard is hf + fp32; pruned/bf16 are exploratory only)
-#   EVAL_ROOT eval, *_BATCH_SIZE overrides, LOGIQA_SELECTION, APPS_TASK_FILE (the seeded 500, pinned by id), TRIVIAQA_EM_MODE (aliases),
+#   EVAL_ROOT eval, *_BATCH_SIZE overrides, LOGIQA_SELECTION, APPS_TASK_FILE (the seeded 500, pinned by id),
 #   APPS_SPLIT (test), EVAL_WORKERS, APPS_TIMEOUT
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
@@ -41,20 +40,19 @@ if [[ "$VECTOR" == "baseline" ]]; then ARM=baseline; RUN_BASELINE=1; else : "${A
 [[ "$VECTOR" == "baseline" || -f "$VECTOR" ]] || { echo "vector not found: $VECTOR" >&2; exit 2; }
 : "${GPUS:=${1:-0}}"
 IFS=',' read -r -a GPU_ARR <<< "$GPUS"; NUM_GPUS=${#GPU_ARR[@]}
-: "${DATASETS:=math,apps,logiqa,triviaqa}"
+: "${DATASETS:=math,apps,logiqa}"
 : "${EVAL_ROOT:=eval}"
 : "${MAX_TOKENS:=10000}"; : "${LAYER:=20}"; : "${COEF:=-1.0}"; : "${SAMPLE_SEED:=42}"; : "${MAX_ATTEMPTS:=3}"
 : "${GEN_MODE:=hf}"; : "${PRUNE_CHUNK:=256}"; : "${MODEL_DTYPE:=fp32}"
 case "$MODEL_SIZE" in
-  1.5B) : "${MATH_BATCH_SIZE:=25}"; : "${APPS_BATCH_SIZE:=1}"; : "${LOGIQA_BATCH_SIZE:=25}"; : "${TRIVIAQA_BATCH_SIZE:=25}"; : "${LCB_BATCH_SIZE:=25}" ;;
-  7B)   : "${MATH_BATCH_SIZE:=16}"; : "${APPS_BATCH_SIZE:=2}"; : "${LOGIQA_BATCH_SIZE:=8}";  : "${TRIVIAQA_BATCH_SIZE:=16}"; : "${LCB_BATCH_SIZE:=16}" ;;
+  1.5B) : "${MATH_BATCH_SIZE:=25}"; : "${APPS_BATCH_SIZE:=1}"; : "${LOGIQA_BATCH_SIZE:=25}"; : "${LCB_BATCH_SIZE:=25}" ;;
+  7B)   : "${MATH_BATCH_SIZE:=16}"; : "${APPS_BATCH_SIZE:=2}"; : "${LOGIQA_BATCH_SIZE:=8}";  : "${LCB_BATCH_SIZE:=16}" ;;
   *) echo "MODEL_SIZE must be 1.5B or 7B (got '$MODEL_SIZE'); set the *_BATCH_SIZE pins yourself for other models" >&2; exit 2 ;;
 esac
-: "${MATH_MAX_EXAMPLES:=500}"; : "${APPS_MAX_EXAMPLES:=500}"; : "${LOGIQA_MAX_EXAMPLES:=500}"; : "${TRIVIAQA_MAX_EXAMPLES:=500}"; : "${LCB_MAX_EXAMPLES:=400}"
+: "${MATH_MAX_EXAMPLES:=500}"; : "${APPS_MAX_EXAMPLES:=500}"; : "${LOGIQA_MAX_EXAMPLES:=500}"; : "${LCB_MAX_EXAMPLES:=400}"
 : "${APPS_SPLIT:=test}"; : "${LCB_RELEASE:=release_v1}"; : "${EVAL_WORKERS:=12}"; : "${APPS_TIMEOUT:=10}"
 : "${LOGIQA_SELECTION:=eval/logic_eval/logic_eval_task/LogiQA2/eval_rand42_500_clean.json}"
 : "${APPS_TASK_FILE:=eval/code_eval/code_eval_task/APPS/test_rand42_500.jsonl}"   # the seeded 500 by id; tests reload from APPS
-: "${TRIVIAQA_EM_MODE:=aliases}"
 # The growing-KV pattern of HF decoding fragments the caching allocator; expandable_segments avoids that
 # (measured: no effect on speed or numerics).
 export PYTORCH_CUDA_ALLOC_CONF=${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}
@@ -62,16 +60,12 @@ export PYTORCH_CUDA_ALLOC_CONF=${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:Tr
 MATH_ROOT="$EVAL_ROOT/math_eval/math_eval_$MODEL_SIZE";                MATH_PIPE=eval/math_eval/pipeline
 CODE_ROOT="$EVAL_ROOT/code_eval/code_eval_$MODEL_SIZE";                CODE_PIPE=eval/code_eval/pipeline
 LOGIC_ROOT="$EVAL_ROOT/logic_eval/logic_eval_$MODEL_SIZE";             LOGIC_PIPE=eval/logic_eval/pipeline
-NONREASON_ROOT="$EVAL_ROOT/nonreason_eval/nonreason_eval_$MODEL_SIZE"; NONREASON_PIPE=eval/nonreason_eval/pipeline
 
 IFS=',' read -r -a SELECTED <<< "$DATASETS"
-for d in "${SELECTED[@]}"; do case "$d" in math|apps|logiqa|triviaqa|livecodebench) ;; *) echo "unknown dataset '$d' (math,apps,logiqa,triviaqa)" >&2; exit 2 ;; esac; done
+for d in "${SELECTED[@]}"; do case "$d" in math|apps|logiqa|livecodebench) ;; *) echo "unknown dataset '$d' (math,apps,logiqa)" >&2; exit 2 ;; esac; done
 enabled() { case ",$DATASETS," in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
 if enabled logiqa && [[ ! -f "$LOGIQA_SELECTION" ]]; then echo "LOGIQA_SELECTION not found: $LOGIQA_SELECTION" >&2; exit 2; fi
 if enabled apps && [[ ! -f "$APPS_TASK_FILE" ]]; then echo "APPS_TASK_FILE not found: $APPS_TASK_FILE" >&2; exit 2; fi
-if enabled triviaqa && [[ ! -f eval/nonreason_eval/nonreason_eval_task/TriviaQA/test.jsonl ]]; then
-  echo "eval/nonreason_eval/nonreason_eval_task/TriviaQA/test.jsonl missing; run: python extraction/nonreason_extraction/nonreason_pool/prepare_triviaqa.py" >&2; exit 2
-fi
 
 COMMON=(--model_name_or_path "$MODEL" --max_tokens "$MAX_TOKENS" --use_chat_format --remove_bos
         --gen_mode "$GEN_MODE" --prune_chunk "$PRUNE_CHUNK" --model_dtype "$MODEL_DTYPE" --num_shards "$NUM_GPUS")
@@ -80,8 +74,6 @@ MATH_ARGS=(  --dataset MATH500 --batch_size "$MATH_BATCH_SIZE" --random_sample -
 APPS_ARGS=(  --benchmark apps --apps_split "$APPS_SPLIT" --apps_task_file "$APPS_TASK_FILE" --batch_size "$APPS_BATCH_SIZE" --random_sample --sample_seed "$SAMPLE_SEED"
              --max_examples "$APPS_MAX_EXAMPLES" --eval_workers "$EVAL_WORKERS" --timeout "$APPS_TIMEOUT")
 LOGIC_ARGS=( --dataset LogiQA2 --batch_size "$LOGIQA_BATCH_SIZE" --logiqa_english_only --logiqa_eval_selection "$LOGIQA_SELECTION")
-TRIVIA_ARGS=(--dataset TriviaQA --batch_size "$TRIVIAQA_BATCH_SIZE" --random_sample --sample_seed "$SAMPLE_SEED"
-             --max_examples "$TRIVIAQA_MAX_EXAMPLES" --em_mode "$TRIVIAQA_EM_MODE")
 LCB_ARGS=(   --benchmark livecodebench --release "$LCB_RELEASE" --batch_size "$LCB_BATCH_SIZE" --max_examples "$LCB_MAX_EXAMPLES")
 
 warm_caches() {  # N shards racing to download the same weights / parquet files is how caches get corrupted: do it once, serially.
@@ -130,14 +122,12 @@ if [[ "$RUN_BASELINE" == "1" ]]; then
   enabled math     && run $MATH_PIPE/eval_math_steering.py           "$MATH_ROOT/baseline_on_MATH500"       "${MATH_ARGS[@]}"
   enabled apps     && run $CODE_PIPE/eval_code_steering.py           "$CODE_ROOT/baseline_on_APPS"          "${APPS_ARGS[@]}"
   enabled logiqa   && run $LOGIC_PIPE/eval_logic_steering.py         "$LOGIC_ROOT/baseline_on_LogiQA2"      "${LOGIC_ARGS[@]}"
-  enabled triviaqa && run $NONREASON_PIPE/eval_nonreason_steering.py "$NONREASON_ROOT/baseline_on_TriviaQA" "${TRIVIA_ARGS[@]}"
   enabled livecodebench && run $CODE_PIPE/eval_code_steering.py      "$CODE_ROOT/baseline_on_LiveCodeBench" "${LCB_ARGS[@]}"
 fi
 if [[ "$VECTOR" != "baseline" ]]; then
   enabled math     && run $MATH_PIPE/eval_math_steering.py           "$MATH_ROOT/${ARM}_on_MATH500"       "${MATH_ARGS[@]}"   "${STEER[@]}"
   enabled apps     && run $CODE_PIPE/eval_code_steering.py           "$CODE_ROOT/${ARM}_on_APPS"          "${APPS_ARGS[@]}"   "${STEER[@]}"
   enabled logiqa   && run $LOGIC_PIPE/eval_logic_steering.py         "$LOGIC_ROOT/${ARM}_on_LogiQA2"      "${LOGIC_ARGS[@]}"  "${STEER[@]}"
-  enabled triviaqa && run $NONREASON_PIPE/eval_nonreason_steering.py "$NONREASON_ROOT/${ARM}_on_TriviaQA" "${TRIVIA_ARGS[@]}" "${STEER[@]}"
   enabled livecodebench && run $CODE_PIPE/eval_code_steering.py      "$CODE_ROOT/${ARM}_on_LiveCodeBench" "${LCB_ARGS[@]}"    "${STEER[@]}"
 fi
 echo "Finished. Results under $EVAL_ROOT/<domain>_eval/<domain>_eval_$MODEL_SIZE/${ARM}_on_<BENCH>/"

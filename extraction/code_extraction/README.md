@@ -8,6 +8,5 @@
   * `result/baseline_10000/` — the shipped traces that built it (`data.jsonl`, `math_eval.jsonl.gz`, `gen_config.json`,
     `selection_{correct,incorrect}_0_500.json`). `general_extraction` decompresses `math_eval.jsonl.gz` in place on first use and writes
     `hidden_{correct,incorrect}_0_500/hidden.pt` next to it (`--keywords code`).
-  * `pipeline/scripts/extract_vector.sh` — the recipe (prints the commands). The earlier MBPP-based code vector (120+120 traces) is retired:
-    the retired-benchmarks folder (removed from the repo on 2026-08-23 (team decision; in git history)).
+  * `pipeline/scripts/extract_vector.sh` — the recipe (prints the commands).
 * `code_extraction_7B/result/apps_v_code.pt` — 7B S_code (dim 3584). **Unverifiable / STALE**: no traces, hidden prompts or meta were shipped and the 7B evals predate the committed file; rebuild with the recipe above on the 7B model (see `code_extraction_7B/pipeline/README.md`).

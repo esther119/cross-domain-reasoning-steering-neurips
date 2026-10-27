@@ -159,9 +159,7 @@ if __name__ == "__main__":
                              "Pass the steering layer to shrink hidden.pt ~num_layers x.")
     parser.add_argument("--keywords", type=str, default="math", choices=sorted(KEYWORD_SETS),
                         help="Check/switch keyword set: 'math' (upstream SEAL, v_math), "
-                             "'code' (code-adapted, v_code), 'logic' (LogiQA2-adapted, v_logic), or "
-                             "'nonreason' (TriviaQA closed-book recall, v_nonreason -- see "
-                             "extraction/nonreason_extraction/nonreason_keyword/README.md). Any "
+                             "'code' (code-adapted, v_code), or 'logic' (LogiQA2-adapted, v_logic). Any "
                              "extraction/<d>_extraction/<d>_keyword/keywords.json is picked up as <d>.")
     args = parser.parse_args()
     correct, incorrect = load_evaluated_traces(

@@ -1,11 +1,10 @@
 """Probe how well a keyword set tags a domain's reasoning steps, and -- unlike a plain
 coverage number -- surface WHICH recurring phrases are being missed, ranked by how
 many distinct steps each one would actually recover. Written for LogiQA (the `logic`
-set); the `nonreason` set (TriviaQA, extraction/nonreason_extraction/nonreason_keyword/)
-was derived with it too -- pick the task-scaffolding noise list with --noise_set.
+set); pick the task-scaffolding noise list with --noise_set.
 
 Given math_eval.jsonl + data.jsonl from gen_logiqa_vllm.py (or math_eval.jsonl + the
-pool train.jsonl via --data_path for TriviaQA; tokenizer only, no GPU needed), this reports:
+pool train.jsonl via --data_path; tokenizer only, no GPU needed), this reports:
   1. check/switch/other tag rates for a given --keywords set (the headline number:
      e.g. "math" leaves some fraction of steps in "other" even when they're
      genuinely reflective/transition thoughts, just phrased differently).
@@ -29,7 +28,6 @@ for review purposes.
 
 Workflow to *derive* a domain's keyword set (do not invent it):
   1. bash extraction/logic_extraction/logic_keyword/discover_logic_keywords.sh          # probe gen + baseline coverage
-     (nonreason: bash extraction/nonreason_extraction/nonreason_keyword/discover_nonreason_keywords.sh)
   2. python extraction/logic_extraction/logic_keyword/logic_keyword_coverage.py --data_dir ... --keywords math
   3. Read candidate_phrases_math.json (ranked by distinct-step recovery) and
      review_samples_math.jsonl (untagged samples) -- confirm each high-ranked
@@ -44,11 +42,6 @@ Workflow to *derive* a domain's keyword set (do not invent it):
       --data_dir extraction/logic_extraction/logic_extraction_1.5B/result/keyword_probe \\
       --model_path deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \\
       --keywords math
-  python extraction/logic_extraction/logic_keyword/logic_keyword_coverage.py \\
-      --data_dir extraction/nonreason_extraction/nonreason_extraction_1.5B/result/keyword_probe \\
-      --data_path extraction/nonreason_extraction/nonreason_pool/TriviaQA/train.jsonl \\
-      --model_path deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \\
-      --keywords nonreason --noise_set nonreason
 """
 import argparse
 import os
@@ -81,21 +74,12 @@ _STOPWORDS = {
 # but a phrase that pairs one of these with a real content word, e.g. "passage
 # contradicts", survives for review).
 # Per-domain, because the scaffolding differs: LogiQA steps all mention the
-# passage/options, TriviaQA steps all mention the question/answer/asking. Pick with
+# passage/options. Pick with
 # --noise_set (or pass --noise_words to override).
 _NOISE_SETS = {
     "logiqa": {
         "option", "options", "passage", "question", "argument", "conclusion",
         "premise", "statement", "a", "b", "c", "d",
-    },
-    # TriviaQA scaffolding (the `nonreason` set). NOTE "remember"/"recall"/"think" are
-    # deliberately NOT here: on a recall task they are the EXECUTION step (the model
-    # doing the task), and the point of the candidate list is to judge them on the
-    # review samples, not to hide them. This set only drops words that appear in every
-    # step regardless of what the step is doing.
-    "nonreason": {
-        "question", "questions", "answer", "answers", "asking", "asks", "asked",
-        "trivia", "user", "step", "steps",
     },
     "none": set(),
 }
@@ -177,7 +161,7 @@ def main():
     ap.add_argument("--noise_set", default="logiqa", choices=sorted(_NOISE_SETS),
                      help="task-scaffolding words to drop from candidate n-grams "
                           "(they appear in every step regardless of its tag): "
-                          "logiqa (default), nonreason (TriviaQA), none.")
+                          "logiqa (default), none.")
     ap.add_argument("--noise_words", default=None,
                      help="comma-separated override for --noise_set.")
     ap.add_argument("--eval_path", default=None,

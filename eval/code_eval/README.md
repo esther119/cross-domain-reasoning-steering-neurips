@@ -6,8 +6,7 @@
   `apps_utils.py` (APPS loader/prompt/scoring with difficulty breakdowns; `--timeout 10` per test, matching the extraction scorer),
   `code_evaluation/` (vendored execution harness + `testing_util`; also backs the harness's `--benchmark livecodebench` path, which is kept
   in the code but is not part of the experiment plan). Generated programs are **executed** during grading — run only in an isolated environment.
-* `code_eval_1.5B/`, `code_eval_7B/` — `<vector>_on_APPS/` (the three 7B APPS baselines: `../PROVENANCE.md`).
+* `code_eval_1.5B/`, `code_eval_7B/` — `<vector>_on_APPS/`.
 
 `VECTOR=<vector.pt> ARM=<arm> MODEL_SIZE=<size> DATASETS=apps bash scripts/eval_vector.sh 0` is the driver (`RUN_BASELINE=1` adds the baseline;
-500 problems, `APPS_TIMEOUT=10`); add `GPUS=0,1,2,3` for the sharded, resumable version. Benchmarks retired on 2026-08-23 are in
-the retired-benchmarks folder (removed from the repo on 2026-08-23 (team decision; in git history)) .
+500 problems, `APPS_TIMEOUT=10`); add `GPUS=0,1,2,3` for the sharded, resumable version.

@@ -159,10 +159,10 @@ def logic_eval_main(res_path, save=False, output_dir=None):
     answer is simply wrong -- but is counted separately so "reasoned and got it
     wrong" is distinguishable from "never stopped reasoning".
 
-    There is deliberately no way to select a different grader. The pre-2026-07-29
+    There is deliberately no way to select a different grader. An earlier
     extractor guessed a letter for unfinished generations, inflating LogiQA by
-    ~10 points; keeping it selectable is what let a legacy-graded baseline sit on
-    main for a week while every steered arm used this rule. metrics.json still
+    ~10 points; keeping it selectable would let a baseline and its steered arms
+    be scored under different rules. metrics.json still
     records "grader": "reasoning" so a file's provenance stays checkable.
     """
     with open(res_path) as f:

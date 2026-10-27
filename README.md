@@ -45,7 +45,7 @@ VECTOR=extraction/general_extraction/general_extraction_1.5B/result/S_general_ma
   ARM=v_general MODEL_SIZE=1.5B bash scripts/eval_vector.sh 0
 ```
 
-`DATASETS=math,apps,logiqa` limits the benchmarks, and `GPUS=0,1,2,3` shards a run over several GPUs (resumable).
+`DATASETS=math` (or `apps`, `logiqa`) limits the benchmarks, and `GPUS=0,1,2,3` shards a run over several GPUs (resumable).
 Results land in `eval/<domain>_eval/<domain>_eval_<size>/<ARM>_on_<BENCH>/`.
 
 [`scripts/README.md`](scripts/README.md) has a sample command for every arm, including the combined and random

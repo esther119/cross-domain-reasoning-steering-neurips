@@ -70,7 +70,7 @@ def main(res_path, save=False, k=None, output_dir=None):
         # A generation that never closed </think> ran out of budget still inside the
         # reasoning block: it never reached an answer region, so a \boxed{} found in
         # mid-reasoning is a tentative value, not a stated answer. Unfinished scores as
-        # incorrect -- the same rule as logic_utils.extract_choice and triviaqa_utils --
+        # incorrect -- the same rule as logic_utils.extract_choice --
         # and is counted separately so "reasoned and got it wrong" stays distinguishable
         # from "never stopped reasoning".
         all_unfinished = ["</think>" not in g for g in example["model_generation"]]

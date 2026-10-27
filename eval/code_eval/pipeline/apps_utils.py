@@ -157,8 +157,8 @@ def extract_apps_code(generation: str) -> str:
 
     A generation that never closed ``</think>`` ran out of budget still inside the
     reasoning block, so it never submitted a program: a fence written mid-reasoning is
-    a draft, not an answer. Return nothing -- the same rule as logic_utils.extract_choice,
-    triviaqa_utils and get_math_results.
+    a draft, not an answer. Return nothing -- the same rule as logic_utils.extract_choice
+    and get_math_results.
     """
     if "</think>" not in generation:
         return ""

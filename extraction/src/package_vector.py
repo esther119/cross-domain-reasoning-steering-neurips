@@ -2,19 +2,19 @@
 """Package a built SEAL steering vector into <out_dir>/<name>.pt + <name>.meta.json.
 
 Same provenance fields as the other packaged vectors' .meta.json (apps_v_code,
-logiqa2_v_logic, triviaqa_v_nonreason), computed from the build directory rather than
+logiqa2_v_logic), computed from the build directory rather than
 typed by hand: generation stats from math_eval.jsonl, pool/boundary counts from
 hidden_{correct,incorrect}_0_<N>/hidden.pt, keyword lists from KEYWORD_SETS (the
 extraction/<d>_extraction/<d>_keyword/keywords.json files, via hidden_analysis), and
 the vector's own dim / norm.
 
     python extraction/src/package_vector.py \
-      --source extraction/nonreason_extraction/nonreason_extraction_1.5B/result/baseline_10000/vector_nonreason_500_500/layer_20_transition_reflection_steervec.pt \
-      --build_dir extraction/nonreason_extraction/nonreason_extraction_1.5B/result/baseline_10000 \
-      --name triviaqa_v_nonreason --model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \
-      --dataset "mandarjoshi/trivia_qa unfiltered.nocontext (closed-book)" --keywords nonreason --layer 20 --sample 500 \
-      --max_tokens 10000
-      # -> extraction/nonreason_extraction/nonreason_extraction_1.5B/result/triviaqa_v_nonreason.pt (+ .meta.json)
+      --source extraction/logic_extraction/logic_extraction_1.5B/result/baseline_3000_regraded/vector_logic_500_500/layer_20_transition_reflection_steervec.pt \
+      --build_dir extraction/logic_extraction/logic_extraction_1.5B/result/baseline_3000_regraded \
+      --name logiqa2_v_logic --model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \
+      --dataset "LogiQA 2.0 train (English)" --keywords logic --layer 20 --sample 500 \
+      --max_tokens 3000
+      # -> extraction/logic_extraction/logic_extraction_1.5B/result/logiqa2_v_logic.pt (+ .meta.json)
 
 --out_dir defaults to the nearest `result/` ancestor of --build_dir, i.e. the
 `extraction/<d>_extraction/<d>_extraction_<size>/result/` folder the packaged vectors
@@ -71,13 +71,13 @@ def generation_stats(build_dir):
     if answered is not None:
         stats["answered"] = answered
         stats["answer_rate"] = round(answered / n, 4) if n else None
-    # TriviaQA-specific alias instrumentation, if the grader wrote it.
+    # Alias instrumentation, if the grader wrote it.
     if rows and "all_eval_official" in rows[0]:
         stats["alias_only_correct"] = sum(1 for r in rows
                                           if r["all_eval_official"][0] and not r["all_eval_value_only"][0])
         stats["correct_value_only"] = sum(bool(r["all_eval_value_only"][0]) for r in rows)
         stats["correct_contains"] = sum(bool(r["all_eval_contains"][0]) for r in rows)
-    # Grading mode the labels on disk used (TriviaQA harness writes it to metrics.json).
+    # Grading mode the labels on disk used (if the harness wrote it to metrics.json).
     mpath = os.path.join(build_dir, "metrics.json")
     if os.path.exists(mpath):
         try:
@@ -105,7 +105,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--source", required=True, help="built layer_<L>_transition_reflection_steervec.pt")
     ap.add_argument("--build_dir", required=True, help="dir holding math_eval.jsonl and hidden_*_0_<N>/")
-    ap.add_argument("--name", required=True, help="package name, e.g. triviaqa_v_nonreason -> <out_dir>/<name>.pt")
+    ap.add_argument("--name", required=True, help="package name, e.g. logiqa2_v_logic -> <out_dir>/<name>.pt")
     ap.add_argument("--model", required=True)
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--split", default="train")

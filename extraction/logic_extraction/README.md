@@ -26,9 +26,9 @@
   * `pipeline/scripts/extract_vector.sh` — same pipeline on the 7B model (10k budget); `SAVE_TAG`/`BUILD_DIR` select the build dir and it
     runs the same strict-label guard as the 1.5B recipe. See `logic_extraction_7B/pipeline/README.md`.
   * `result/baseline_10000/` — the 1,250 traces (10k cap) with the **archived pipeline's** labels
-    (the archived `logic/gen_logiqa2_vllm.py` pipeline (in git history; the folder was removed on 2026-08-23), whose grader has a bare-letter fallback: 73 of its 724 "correct" traces never
+    (an earlier pipeline whose grader has a bare-letter fallback: 73 of its 724 "correct" traces never
     closed `</think>`), plus `vector_500_500/…steervec.pt` built from those labels.
-  * `result/baseline_10000_regraded/` — **the canonical set**: the same 1,250 traces re-graded on 2026-08-23 with
+  * `result/baseline_10000_regraded/` — **the canonical set**: the same 1,250 traces re-graded with
     `eval/logic_eval/pipeline/logic_utils.extract_choice` via the 1.5B `relabel_logiqa_build.py` (650 correct / 600 incorrect, 185 unfinished,
     74 labels flipped correct→incorrect, all of them unfinished).
   * `result/logiqa2_v_logic.pt` — **STALE**: built from the archived-grader labels. Rebuild from `baseline_10000_regraded`

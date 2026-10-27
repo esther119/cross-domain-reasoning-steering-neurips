@@ -12,7 +12,7 @@ This function generates in chunks of `chunk` tokens and, between chunks, removes
 the rows that finished from the batch: their tokens are stored, the KV cache and
 the model's per-row steering state are sliced down to the survivors, and
 generation continues for those alone. Cost then tracks the number of rows still
-running rather than the batch size. On the TriviaQA probe (79% of traces finish
+running rather than the batch size. On a short-answer probe (79% of traces finish
 by 1k tokens, 20% run to the cap) the cost model says ~4x per batch.
 
 Semantics: each row sees exactly the computation model.generate() would give it

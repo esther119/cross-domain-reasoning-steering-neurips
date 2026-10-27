@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # S_math steered on MATH500 (100-example smoke). Run from the repo root.
-# The LiveCodeBench half of the original recipe was retired on 2026-08-23: the retired-benchmarks folder (removed from the repo on 2026-08-23 (team decision; in git history))
 gpu=${1:-0}
 CUDA_VISIBLE_DEVICES=$gpu python eval/math_eval/pipeline/eval_math_steering.py \
     --model_name_or_path  deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \

@@ -12,11 +12,11 @@
 ## STALE: the committed 7B vectors
 
 `../result/logiqa2_v_logic.pt` and `../result/baseline_10000/vector_500_500/layer_20_transition_reflection_steervec.pt`
-were built from labels produced by the **archived** pipeline (the archived `logic/gen_logiqa2_vllm.py` pipeline (in git history; the folder was removed on 2026-08-23)), whose grader falls back to a
+were built from labels produced by the **archived** pipeline, whose grader falls back to a
 bare letter when the generation never closed `</think>`: 73 of its 724 "correct" traces stated no answer. The canonical grader is
 `eval/logic_eval/pipeline/logic_utils.extract_choice` (no fallback).
 
-Regraded on 2026-08-23 into `../result/baseline_10000_regraded/`
+Regraded into `../result/baseline_10000_regraded/`
 (1,250 traces kept, **650 correct / 600 incorrect**, 185 unfinished, **74 labels flipped correct→incorrect**, every flip an unfinished trace;
 no trace is `all_eval: true` without a closing `</think>`). Both classes still fill 500, so the 500+500 build stands.
 

@@ -9,4 +9,4 @@
   imported by the extraction generator), `splice_logiqa_clean.py` (restate a 500-row run on the clean set from a 16-row patch run).
 * `logic_eval_1.5B/`, `logic_eval_7B/` — `<vector>_on_LogiQA2/…/eval_rand42_500_clean/` (clean) or `…/rand42_500` (legacy seeded sample).
   1.5B arms run through `scripts/eval_vector.sh` (batch 25/25/1); **every 7B arm runs through `scripts/eval_vector.sh (MODEL_SIZE=7B)`**
-  (pinned 16/8/2). Five 7B runs scored on a mixed-language set (no `--logiqa_english_only`) were deleted from the repo on 2026-08-23 (in git history); see `logic_eval_7B/README.md`.
+  (pinned 16/8/2).
